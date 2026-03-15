@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>REFLEX — Reaction Timer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
+    rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="noise"></div>
+
+  <div class="layout">
+    <!-- Left panel: Three.js canvas -->
+    <div class="canvas-panel">
+      <canvas id="three-canvas"></canvas>
+      <div class="canvas-label">NEURAL REFLEX ENGINE</div>
+    </div>
+
+    <!-- Right panel: game UI -->
+    <div class="ui-panel">
+      <header class="header">
+        <span class="logo">REFLEX</span>
+        <span class="version">v2.0</span>
+      </header>
+
+      <div class="game-area">
+        <!-- State: idle -->
+        <div class="state-block" id="state-idle">
+          <p class="state-desc">Test the speed of your nervous system.</p>
+          <button class="btn btn-primary" id="btn-start">INITIALIZE TEST</button>
+        </div>
+
+        <!-- State: waiting -->
+        <div class="state-block hidden" id="state-waiting">
+          <div class="waiting-signal">
+            <div class="pulse-ring"></div>
+            <div class="pulse-ring ring-2"></div>
+            <span class="waiting-icon">◎</span>
+          </div>
+          <p class="state-desc">Hold steady…<br /><span class="subtext">Click when you see the signal</span></p>
+          <button class="btn btn-ghost" id="btn-click-waiting">CLICK HERE</button>
+        </div>
+
+        <!-- State: ready -->
+        <div class="state-block hidden" id="state-ready">
+          <div class="go-signal">
+            <span class="go-text">GO</span>
+          </div>
+          <button class="btn btn-success" id="btn-click-ready">CLICK NOW</button>
+        </div>
+
+        <!-- State: too soon -->
+        <div class="state-block hidden" id="state-tooSoon">
+          <div class="error-icon">✕</div>
+          <p class="state-title error-text">TOO SOON</p>
+          <p class="state-desc">You clicked before the signal. Train harder.</p>
+          <button class="btn btn-outline" id="btn-retry-soon">TRY AGAIN</button>
+        </div>
+
+        <!-- State: result -->
+        <div class="state-block hidden" id="state-result">
+          <p class="result-label">REACTION TIME</p>
+          <div class="result-number">
+            <span id="result-ms">—</span>
+            <span class="result-unit">ms</span>
+          </div>
+          <p class="result-rating" id="result-rating"></p>
+          <div class="result-stats">
+            <div class="stat">
+              <span class="stat-label">BEST</span>
+              <span class="stat-value" id="stat-best">—</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">AVG</span>
+              <span class="stat-value" id="stat-avg">—</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">ROUNDS</span>
+              <span class="stat-value" id="stat-rounds">0</span>
+            </div>
+          </div>
+          <button class="btn btn-primary" id="btn-retry-result">RUN AGAIN</button>
+        </div>
+      </div>
+
+      <div class="history-panel">
+        <div class="history-title">HISTORY</div>
+        <div class="history-list" id="history-list">
+          <span class="history-empty">No runs yet</span>
+        </div>
+      </div>
+
+      <footer class="footer">
+        <span>Human avg: ~250ms · Pro gamer: ~150ms · World record: ~100ms</span>
+      </footer>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="three-scene.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
