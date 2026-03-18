@@ -10,7 +10,7 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
     rel="stylesheet" />
-  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="icon" type="image/png" sizes="64x64" href="favicon.png" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -235,6 +235,7 @@
         <!-- State: game over -->
         <div class="state-block hidden" id="state-gameover">
           <div class="gameover-badge">SESSION COMPLETE</div>
+          <div class="newbest-banner hidden" id="go-newbest">🏆 NEW ALL-TIME BEST!</div>
           <p class="gameover-title">5 / 5</p>
           <p class="gameover-rating" id="go-rating"></p>
           <div class="result-stats">
@@ -245,6 +246,10 @@
             <div class="stat">
               <span class="stat-label">AVG</span>
               <span class="stat-value" id="go-avg">—</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">🏆 ALL-TIME</span>
+              <span class="stat-value" id="go-alltime">—</span>
             </div>
           </div>
           <div class="gameover-hist-label">ALL ROUNDS</div>
@@ -266,8 +271,12 @@
           <span class="strip-val" id="s-avg">—</span>
         </div>
         <div class="strip-stat">
-          <span class="strip-label">ATTEMPTS</span>
+          <span class="strip-label">ROUND</span>
           <span class="strip-val" id="s-runs">0</span>
+        </div>
+        <div class="strip-stat alltime">
+          <span class="strip-label">🏆 ALL-TIME</span>
+          <span class="strip-val" id="s-alltime">—</span>
         </div>
       </div>
 

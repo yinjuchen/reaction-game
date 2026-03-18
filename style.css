@@ -1034,3 +1034,31 @@ body {
   color: var(--text-dim);
   align-self: flex-start;
 }
+
+/* ── All-time best & new best banner ──────────── */
+.strip-stat.alltime .strip-val {
+  color: var(--gold);
+}
+
+.newbest-banner {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  color: var(--gold);
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 999px;
+  padding: 6px 16px;
+  animation: newBestPulse 0.8s ease infinite alternate;
+}
+
+@keyframes newBestPulse {
+  from {
+    box-shadow: 0 0 8px rgba(251, 191, 36, 0.3);
+  }
+
+  to {
+    box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+  }
+}

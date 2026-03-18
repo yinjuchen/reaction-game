@@ -65,7 +65,15 @@
       });
     }
 
-    return { click, go, error, result, gameOver };
+    // Special fanfare — new all-time best
+    function newBest() {
+      [0, 80, 160, 240, 360].forEach((t, i) => {
+        const freqs = [659, 784, 880, 1047, 1319];
+        setTimeout(() => _tone({ freq: freqs[i], type: 'sine', attack: 0.008, decay: 0.5, volume: 0.35 }), t);
+      });
+    }
+
+    return { click, go, error, result, gameOver, newBest };
   })();
 
   // ── Game states ──────────────────────────────────────────
@@ -79,6 +87,23 @@
   });
 
   const TOTAL_ROUNDS = 5;
+  const STORAGE_KEY = 'reflex_alltime_best';
+
+  // ── Storage helpers ───────────────────────────────────────
+  const Store = {
+    getBest() {
+      try {
+        const val = localStorage.getItem(STORAGE_KEY);
+        return val ? parseInt(val, 10) : null;
+      } catch (e) { return null; }
+    },
+    setBest(ms) {
+      try { localStorage.setItem(STORAGE_KEY, ms); } catch (e) { }
+    },
+    clearBest() {
+      try { localStorage.removeItem(STORAGE_KEY); } catch (e) { }
+    },
+  };
 
   // ── Session variables ─────────────────────────────────────
   let gameState = STATES.IDLE;
@@ -86,6 +111,7 @@
   let waitTimer = null;
   let history = [];
   let roundCount = 0;
+  let allTimeBest = Store.getBest(); // loaded from localStorage on boot
 
   // ── DOM refs ──────────────────────────────────────────────
   const stateBlocks = {
@@ -122,9 +148,14 @@
   const elSBest = document.getElementById('s-best');
   const elSAvg = document.getElementById('s-avg');
   const elSRuns = document.getElementById('s-runs');
+  const elSAllTime = document.getElementById('s-alltime');
 
   // History
   const elHistoryList = document.getElementById('history-list');
+
+  // Game over all-time
+  const elGoAllTime = document.getElementById('go-alltime');
+  const elGoNewBest = document.getElementById('go-newbest');
 
   // Canvas
   const canvas = document.getElementById('three-canvas');
@@ -240,9 +271,25 @@
       const best = Math.min(...history);
       const avg = Math.round(history.reduce((a, b) => a + b, 0) / history.length);
 
+      // Check if new all-time best
+      const isNewBest = allTimeBest === null || best < allTimeBest;
+      if (isNewBest) {
+        allTimeBest = best;
+        Store.setBest(best);
+      }
+
       elGoBest.textContent = best + 'ms';
       elGoAvg.textContent = avg + 'ms';
       elGoRating.textContent = _getRating(avg);
+      elGoAllTime.textContent = allTimeBest + 'ms';
+
+      // Show/hide new best banner
+      if (isNewBest) {
+        elGoNewBest.classList.remove('hidden');
+        Audio.newBest();
+      } else {
+        elGoNewBest.classList.add('hidden');
+      }
 
       // Render all chips in game over history
       let bestMarked = false;
@@ -255,7 +302,7 @@
     }, 1800);
   }
 
-  /** Full reset — clears history and round count */
+  /** Full reset — clears session history and round count */
   function resetGame() {
     clearTimeout(waitTimer);
     waitTimer = null;
@@ -264,6 +311,7 @@
     elSBest.textContent = '—';
     elSAvg.textContent = '—';
     elSRuns.textContent = '0';
+    elSAllTime.textContent = allTimeBest !== null ? allTimeBest + 'ms' : '—';
     elHistoryList.innerHTML = '<span class="history-empty">No runs yet</span>';
     transitionTo(STATES.IDLE);
   }
@@ -284,6 +332,7 @@
     elSBest.textContent = best + 'ms';
     elSAvg.textContent = avg + 'ms';
     elSRuns.textContent = roundCount + ' / ' + TOTAL_ROUNDS;
+    elSAllTime.textContent = allTimeBest !== null ? allTimeBest + 'ms' : '—';
 
     // History chips
     _renderHistory(latestMs, best);
