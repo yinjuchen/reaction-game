@@ -2,6 +2,8 @@
 
 A precision reaction time game built with vanilla JavaScript and Three.js. Test the speed of your nervous system across 5 rounds and see how you stack up against pro gamers and world records.
 
+🎮 **[Play Live Demo](https://yinjuchen.github.io/reaction-game/)**
+
 ---
 
 ## Demo
