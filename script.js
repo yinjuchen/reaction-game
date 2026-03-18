@@ -153,6 +153,7 @@
   // Game over all-time
   const elGoAllTime = document.getElementById('go-alltime');
   const elGoNewBest = document.getElementById('go-newbest');
+  const chartCanvas = document.getElementById('chart-canvas');
 
   // Canvas
   const canvas = document.getElementById('three-canvas');
@@ -242,6 +243,11 @@
   // ── Init Three.js ─────────────────────────────────────────
   ThreeScene.init(canvas);
 
+  // Re-trigger resize after full page layout settles (fixes mobile)
+  window.addEventListener('load', () => {
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 100);
+  });
+
   // ── State machine ─────────────────────────────────────────
   function transitionTo(newState) {
     gameState = newState;
@@ -299,6 +305,137 @@
     transitionTo(STATES.RESULT);
   }
 
+  // ── Bar chart ─────────────────────────────────────────────
+  function _drawChart(data, avg, best) {
+    const canvas = chartCanvas;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width;
+    const H = canvas.height;
+    const PAD = { top: 20, bottom: 28, left: 8, right: 8 };
+    const n = data.length;
+    const gap = 8;
+    const barW = (W - PAD.left - PAD.right - gap * (n - 1)) / n;
+    const maxVal = Math.max(...data) * 1.15; // 15% headroom
+    const minVal = 0;
+    const chartH = H - PAD.top - PAD.bottom;
+
+    // Colors — respect colorblind mode
+    const isCb = document.body.classList.contains('cb-mode');
+    const colNormal = isCb ? '#0072B2' : '#3B82F6';
+    const colBest = '#FBBF24';
+    const colAvg = isCb ? '#E69F00' : '#10B981';
+    const colText = '#6B7280';
+    const colGrid = 'rgba(255,255,255,0.06)';
+
+    ctx.clearRect(0, 0, W, H);
+
+    // ── Grid lines (3 horizontal) ──
+    ctx.strokeStyle = colGrid;
+    ctx.lineWidth = 1;
+    [0.25, 0.5, 0.75, 1].forEach(frac => {
+      const y = PAD.top + chartH * (1 - frac);
+      ctx.beginPath();
+      ctx.moveTo(PAD.left, y);
+      ctx.lineTo(W - PAD.right, y);
+      ctx.stroke();
+    });
+
+    // ── Animate bars growing up ──
+    let progress = 0;
+    const DURATION = 600; // ms
+    const startTime = performance.now();
+
+    function drawFrame(now) {
+      progress = Math.min((now - startTime) / DURATION, 1);
+      // Ease out cubic
+      const ease = 1 - Math.pow(1 - progress, 3);
+
+      ctx.clearRect(0, 0, W, H);
+
+      // Grid
+      ctx.strokeStyle = colGrid;
+      ctx.lineWidth = 1;
+      [0.25, 0.5, 0.75, 1].forEach(frac => {
+        const y = PAD.top + chartH * (1 - frac);
+        ctx.beginPath();
+        ctx.moveTo(PAD.left, y);
+        ctx.lineTo(W - PAD.right, y);
+        ctx.stroke();
+      });
+
+      // Bars
+      data.forEach((val, i) => {
+        const isBestBar = val === best;
+        const barH = ((val - minVal) / (maxVal - minVal)) * chartH * ease;
+        const x = PAD.left + i * (barW + gap);
+        const y = PAD.top + chartH - barH;
+
+        // Bar fill
+        ctx.fillStyle = isBestBar ? colBest : colNormal;
+        ctx.globalAlpha = isBestBar ? 1 : 0.75;
+        _roundRect(ctx, x, y, barW, barH, 4);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        // Value label on top
+        if (progress > 0.6) {
+          const labelOpacity = Math.min((progress - 0.6) / 0.4, 1);
+          ctx.globalAlpha = labelOpacity;
+          ctx.fillStyle = isBestBar ? colBest : '#94A3B8';
+          ctx.font = 'bold 10px JetBrains Mono, monospace';
+          ctx.textAlign = 'center';
+          ctx.fillText(val + 'ms', x + barW / 2, y - 5);
+          ctx.globalAlpha = 1;
+        }
+
+        // Round label below
+        ctx.fillStyle = colText;
+        ctx.font = '9px JetBrains Mono, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('R' + (i + 1), x + barW / 2, H - 8);
+      });
+
+      // Average line
+      if (progress > 0.4) {
+        const lineOpacity = Math.min((progress - 0.4) / 0.4, 1);
+        const avgY = PAD.top + chartH - ((avg - minVal) / (maxVal - minVal)) * chartH;
+        ctx.globalAlpha = lineOpacity * 0.9;
+        ctx.strokeStyle = colAvg;
+        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 3]);
+        ctx.beginPath();
+        ctx.moveTo(PAD.left, avgY);
+        ctx.lineTo(W - PAD.right, avgY);
+        ctx.stroke();
+        ctx.setLineDash([]);
+
+        // AVG label
+        ctx.fillStyle = colAvg;
+        ctx.font = 'bold 9px JetBrains Mono, monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText('AVG', W - PAD.right - 2, avgY - 3);
+        ctx.globalAlpha = 1;
+      }
+
+      if (progress < 1) requestAnimationFrame(drawFrame);
+    }
+
+    requestAnimationFrame(drawFrame);
+  }
+
+  // Helper: draw rounded rect
+  function _roundRect(ctx, x, y, w, h, r) {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h);
+    ctx.lineTo(x, y + h);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
+    ctx.closePath();
+  }
+
   /** Show game over after delay */
   function _showGameOver() {
     setTimeout(() => {
@@ -333,6 +470,9 @@
       }).join('');
 
       transitionTo(STATES.GAME_OVER);
+
+      // Draw chart after transition so canvas is visible
+      setTimeout(() => _drawChart(history, avg, best), 100);
     }, 1800);
   }
 
