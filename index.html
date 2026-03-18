@@ -154,32 +154,35 @@
     <!-- Right panel: game UI -->
     <div class="ui-panel">
 
-      <header class="header">
-        <span class="logo">REFLEX</span>
+      <header class="header" role="banner">
+        <span class="logo" aria-label="Reflex Reaction Timer">REFLEX</span>
         <div class="header-right">
-          <button class="btn-mute" id="btn-mute" title="Mute">🔊</button>
-          <button class="btn-help" id="btn-help" title="How to play">?</button>
-          <span class="version">v3.0</span>
+          <button class="btn-mute" id="btn-mute" title="Mute" aria-label="Toggle sound">🔊</button>
+          <button class="btn-cb" id="btn-cb" title="Colorblind mode" aria-label="Toggle colorblind mode"
+            aria-pressed="false">◑</button>
+          <button class="btn-help" id="btn-help" title="How to play" aria-label="Open instructions">?</button>
+          <span class="version" aria-label="Version 3.0">v3.0</span>
         </div>
       </header>
 
       <div class="game-area">
 
         <!-- State: idle -->
-        <div class="state-block" id="state-idle">
-          <div class="idle-icon">◎</div>
+        <div class="state-block" id="state-idle" role="main" aria-label="Game ready to start">
+          <div class="idle-icon" aria-hidden="true">◎</div>
           <div>
             <p class="state-title">Reaction<br />Timer</p>
           </div>
           <p class="state-desc">A precision test of your nervous system. Wait for the green signal — then click as fast
             as you can.</p>
-          <button class="btn btn-primary" id="btn-start">INITIALIZE TEST</button>
+          <button class="btn btn-primary" id="btn-start" aria-label="Start the reaction test">INITIALIZE TEST</button>
           <p class="hint">Press <span class="kbd">SPACE</span> to start</p>
         </div>
 
         <!-- State: waiting -->
-        <div class="state-block hidden" id="state-waiting">
-          <div class="wait-orb">
+        <div class="state-block hidden" id="state-waiting" role="main" aria-label="Waiting for signal"
+          aria-live="polite">
+          <div class="wait-orb" aria-hidden="true">
             <div class="wait-ring"></div>
             <div class="wait-ring"></div>
             <div class="wait-ring"></div>
@@ -187,36 +190,38 @@
           </div>
           <p class="wait-label">CALIBRATING…</p>
           <p class="state-desc">Hold steady. The signal will appear<br />between 1 and 5 seconds.</p>
-          <button class="btn btn-ghost" id="btn-click-waiting">WAITING…</button>
-          <p class="hint danger">Don't click yet!</p>
+          <button class="btn btn-ghost" id="btn-click-waiting"
+            aria-label="Do not click — waiting for signal">WAITING…</button>
+          <p class="hint danger" role="alert">Don't click yet!</p>
         </div>
 
         <!-- State: ready (GO!) -->
-        <div class="state-block hidden" id="state-ready">
-          <div class="go-signal">
+        <div class="state-block hidden" id="state-ready" role="main" aria-label="GO! Click now!" aria-live="assertive">
+          <div class="go-signal" aria-hidden="true">
             <span class="go-text">GO!</span>
           </div>
-          <button class="btn btn-success" id="btn-click-ready">CLICK NOW!</button>
+          <button class="btn btn-success" id="btn-click-ready" aria-label="Click now to record reaction time">CLICK
+            NOW!</button>
           <p class="hint success">or press <span class="kbd kbd-green">SPACE</span></p>
         </div>
 
         <!-- State: too soon -->
-        <div class="state-block hidden" id="state-tooSoon">
-          <div class="error-icon">✕</div>
+        <div class="state-block hidden" id="state-tooSoon" role="main" aria-label="False start" aria-live="polite">
+          <div class="error-icon" aria-hidden="true">✕</div>
           <p class="state-title error-text">TOO SOON</p>
           <p class="state-desc">You clicked before the signal appeared.<br />Patience is part of the test.</p>
-          <button class="btn btn-outline" id="btn-retry-soon">TRY AGAIN</button>
+          <button class="btn btn-outline" id="btn-retry-soon" aria-label="Try again">TRY AGAIN</button>
         </div>
 
         <!-- State: result -->
-        <div class="state-block hidden" id="state-result">
+        <div class="state-block hidden" id="state-result" role="main" aria-live="polite">
           <p class="result-label">REACTION TIME</p>
-          <div class="result-number">
-            <span id="result-ms">—</span>
+          <div class="result-number" aria-label="Your reaction time">
+            <span id="result-ms" aria-live="polite">—</span>
             <span class="result-unit">ms</span>
           </div>
-          <p class="result-rating" id="result-rating"></p>
-          <div class="result-stats">
+          <p class="result-rating" id="result-rating" aria-live="polite"></p>
+          <div class="result-stats" role="group" aria-label="Session statistics">
             <div class="stat">
               <span class="stat-label">BEST</span>
               <span class="stat-value" id="stat-best">—</span>
@@ -230,7 +235,8 @@
               <span class="stat-value" id="stat-rounds">0</span>
             </div>
           </div>
-          <button class="btn btn-primary" id="btn-retry-result">NEXT ROUND →</button>
+          <button class="btn btn-primary" id="btn-retry-result" aria-label="Continue to next round">NEXT ROUND
+            →</button>
         </div>
 
         <!-- State: game over -->

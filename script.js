@@ -187,6 +187,26 @@
   // Set correct icon on load
   _updateMuteBtn();
 
+  // ── Colorblind mode ───────────────────────────────────────
+  const btnCb = document.getElementById('btn-cb');
+  let cbMode = localStorage.getItem('reflex_cb') === 'true';
+
+  function _applyCb() {
+    document.body.classList.toggle('cb-mode', cbMode);
+    btnCb.setAttribute('aria-pressed', cbMode);
+    btnCb.classList.toggle('active', cbMode);
+    btnCb.title = cbMode ? 'Colorblind mode ON' : 'Colorblind mode OFF';
+    try { localStorage.setItem('reflex_cb', cbMode); } catch (e) { }
+  }
+
+  btnCb.addEventListener('click', () => {
+    cbMode = !cbMode;
+    _applyCb();
+  });
+
+  // Apply on load
+  _applyCb();
+
   // ── Modal (instructions) ──────────────────────────────────
   const modalBackdrop = document.getElementById('modal-backdrop');
   const btnModalClose = document.getElementById('btn-modal-close');

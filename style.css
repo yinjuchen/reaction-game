@@ -1089,3 +1089,156 @@ body {
   background: rgba(239, 68, 68, 0.08);
   opacity: 0.7;
 }
+
+/* ── Colorblind mode button ───────────────────── */
+.btn-cb {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-secondary);
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.btn-cb:hover {
+  border-color: var(--gold);
+  background: rgba(251, 191, 36, 0.08);
+  color: var(--gold);
+}
+
+.btn-cb.active {
+  border-color: var(--gold);
+  background: rgba(251, 191, 36, 0.15);
+  color: var(--gold);
+}
+
+/* ── Colorblind mode overrides ────────────────── */
+
+/* Replace green GO with high-contrast blue + pattern */
+.cb-mode .go-signal {
+  background: radial-gradient(circle at 40% 35%, #0072B2 0%, rgba(0, 114, 178, 0.4) 55%, transparent 80%);
+  border-color: #0072B2;
+  box-shadow: 0 0 50px rgba(0, 114, 178, 0.5);
+}
+
+.cb-mode .go-signal::after {
+  content: '▲';
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  font-size: 12px;
+  color: #fff;
+  opacity: 0.7;
+}
+
+.cb-mode .btn-success {
+  background: #0072B2;
+  box-shadow: 0 0 28px rgba(0, 114, 178, 0.5);
+}
+
+.cb-mode .hint.success {
+  color: #0072B2;
+}
+
+.cb-mode .kbd-green {
+  border-color: rgba(0, 114, 178, 0.5);
+  color: #0072B2;
+}
+
+/* Replace amber wait with high-contrast orange + pattern */
+.cb-mode .wait-core {
+  border-color: #E69F00;
+  background: rgba(230, 159, 0, 0.12);
+  color: #E69F00;
+}
+
+.cb-mode .wait-ring {
+  border-color: #E69F00;
+}
+
+.cb-mode .wait-label {
+  color: #E69F00;
+}
+
+.cb-mode .btn-ghost {
+  color: #E69F00;
+  border-color: rgba(230, 159, 0, 0.4);
+}
+
+.cb-mode .hint.danger {
+  color: #E69F00;
+}
+
+/* Replace red error with high-contrast vermilion */
+.cb-mode .error-icon {
+  border-color: #D55E00;
+  background: rgba(213, 94, 0, 0.12);
+  color: #D55E00;
+}
+
+.cb-mode .error-text {
+  color: #D55E00;
+}
+
+/* Replace blue accent with purple (distinguishable from red/green) */
+.cb-mode #result-ms {
+  color: #CC79A7;
+  text-shadow: 0 0 30px rgba(204, 121, 167, 0.4);
+}
+
+.cb-mode .gameover-title {
+  color: #CC79A7;
+}
+
+/* Add text labels to state indicator dot */
+.cb-mode .dot.active-ready {
+  background: #0072B2;
+  box-shadow: 0 0 8px #0072B2;
+}
+
+.cb-mode .dot.active-wait {
+  background: #E69F00;
+  box-shadow: 0 0 8px #E69F00;
+}
+
+.cb-mode .dot.active-error {
+  background: #D55E00;
+  box-shadow: 0 0 8px #D55E00;
+}
+
+/* ── Accessibility: focus rings ───────────────── */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* ── Accessibility: reduced motion ───────────── */
+@media (prefers-reduced-motion: reduce) {
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ── Accessibility: scalable fonts ───────────── */
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    font-size: clamp(14px, 1vw + 0.5rem, 18px);
+  }
+}
