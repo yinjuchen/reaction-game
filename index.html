@@ -175,6 +175,15 @@
           </div>
           <p class="state-desc">A precision test of your nervous system. Wait for the green signal — then click as fast
             as you can.</p>
+
+          <!-- Difficulty selector -->
+          <div class="diff-selector" role="group" aria-label="Select difficulty">
+            <button class="diff-btn" id="diff-easy" data-diff="easy" aria-pressed="false">EASY</button>
+            <button class="diff-btn active" id="diff-normal" data-diff="normal" aria-pressed="true">NORMAL</button>
+            <button class="diff-btn" id="diff-hard" data-diff="hard" aria-pressed="false">HARD</button>
+          </div>
+          <p class="diff-desc" id="diff-desc">Standard delay · The classic test</p>
+
           <button class="btn btn-primary" id="btn-start" aria-label="Start the reaction test">INITIALIZE TEST</button>
           <p class="hint">Press <span class="kbd">SPACE</span> to start</p>
         </div>
@@ -189,6 +198,7 @@
             <div class="wait-core">◎</div>
           </div>
           <p class="wait-label">CALIBRATING…</p>
+          <span class="mode-badge" id="mode-badge-wait"></span>
           <p class="state-desc">Hold steady. The signal will appear<br />between 1 and 5 seconds.</p>
           <button class="btn btn-ghost" id="btn-click-waiting"
             aria-label="Do not click — waiting for signal">WAITING…</button>
@@ -242,6 +252,7 @@
         <!-- State: game over -->
         <div class="state-block hidden" id="state-gameover">
           <div class="gameover-badge">SESSION COMPLETE</div>
+          <span class="mode-badge" id="mode-badge-over"></span>
           <div class="newbest-banner hidden" id="go-newbest">🏆 NEW ALL-TIME BEST!</div>
           <p class="gameover-title">5 / 5</p>
           <p class="gameover-rating" id="go-rating"></p>
@@ -307,8 +318,8 @@
   </div><!-- /layout -->
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <script src="config.js"></script>
   <script src="three-scene.js"></script>
   <script src="script.js"></script>
 </body>
-
 </html>

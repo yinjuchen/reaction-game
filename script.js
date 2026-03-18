@@ -8,7 +8,7 @@
   // ── Audio Engine (Web Audio API — no external files) ─────
   const Audio = (() => {
     let ctx = null;
-    let muted = localStorage.getItem('reflex_muted') === 'true';
+    let muted = localStorage.getItem(CONFIG.storageKeys.muted) === 'true';
 
     function _ctx() {
       if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -64,7 +64,7 @@
 
     function toggleMute() {
       muted = !muted;
-      try { localStorage.setItem('reflex_muted', muted); } catch (e) { }
+      try { localStorage.setItem(CONFIG.storageKeys.muted, muted); } catch (e) { }
       return muted;
     }
 
@@ -83,22 +83,25 @@
     GAME_OVER: 'gameOver',
   });
 
-  const TOTAL_ROUNDS = 5;
-  const STORAGE_KEY = 'reflex_alltime_best';
+  const TOTAL_ROUNDS = CONFIG.totalRounds;
+  const STORAGE_KEY = CONFIG.storageKeys.allTimeBest;
+
+  // ── Difficulty state ──────────────────────────────────────
+  let currentDiff = localStorage.getItem(CONFIG.storageKeys.difficulty) || 'normal';
 
   // ── Storage helpers ───────────────────────────────────────
   const Store = {
     getBest() {
       try {
-        const val = localStorage.getItem(STORAGE_KEY);
+        const val = localStorage.getItem(CONFIG.storageKeys.allTimeBest);
         return val ? parseInt(val, 10) : null;
       } catch (e) { return null; }
     },
     setBest(ms) {
-      try { localStorage.setItem(STORAGE_KEY, ms); } catch (e) { }
+      try { localStorage.setItem(CONFIG.storageKeys.allTimeBest, ms); } catch (e) { }
     },
     clearBest() {
-      try { localStorage.removeItem(STORAGE_KEY); } catch (e) { }
+      try { localStorage.removeItem(CONFIG.storageKeys.allTimeBest); } catch (e) { }
     },
   };
 
@@ -188,16 +191,60 @@
   // Set correct icon on load
   _updateMuteBtn();
 
+  // ── Difficulty selector ───────────────────────────────────
+  const diffBtns = document.querySelectorAll('.diff-btn');
+  const elDiffDesc = document.getElementById('diff-desc');
+  const elModeBadgeWait = document.getElementById('mode-badge-wait');
+  const elModeBadgeOver = document.getElementById('mode-badge-over');
+
+  function _applyDifficulty(diff) {
+    currentDiff = diff;
+    const cfg = CONFIG.difficulties[diff];
+
+    // Update buttons
+    diffBtns.forEach(btn => {
+      const isActive = btn.dataset.diff === diff;
+      btn.classList.toggle('active', isActive);
+      btn.setAttribute('aria-pressed', isActive);
+      btn.style.borderColor = isActive ? cfg.color : '';
+      btn.style.color = isActive ? cfg.color : '';
+    });
+
+    // Update description
+    elDiffDesc.textContent = cfg.description;
+
+    // Update mode badges
+    elModeBadgeWait.textContent = cfg.label;
+    elModeBadgeWait.style.background = cfg.color + '22';
+    elModeBadgeWait.style.borderColor = cfg.color;
+    elModeBadgeWait.style.color = cfg.color;
+
+    elModeBadgeOver.textContent = cfg.label;
+    elModeBadgeOver.style.background = cfg.color + '22';
+    elModeBadgeOver.style.borderColor = cfg.color;
+    elModeBadgeOver.style.color = cfg.color;
+
+    // Persist
+    try { localStorage.setItem(CONFIG.storageKeys.difficulty, diff); } catch (e) { }
+  }
+
+  diffBtns.forEach(btn => {
+    btn.addEventListener('click', () => _applyDifficulty(btn.dataset.diff));
+  });
+
+  // Apply saved difficulty on load
+  _applyDifficulty(currentDiff);
+
   // ── Colorblind mode ───────────────────────────────────────
   const btnCb = document.getElementById('btn-cb');
-  let cbMode = localStorage.getItem('reflex_cb') === 'true';
+  let cbMode = localStorage.getItem(CONFIG.storageKeys.colorblind) === 'true';
 
   function _applyCb() {
     document.body.classList.toggle('cb-mode', cbMode);
     btnCb.setAttribute('aria-pressed', cbMode);
     btnCb.classList.toggle('active', cbMode);
     btnCb.title = cbMode ? 'Colorblind mode ON' : 'Colorblind mode OFF';
-    try { localStorage.setItem('reflex_cb', cbMode); } catch (e) { }
+    try { localStorage.setItem(CONFIG.storageKeys.colorblind, cbMode); } catch (e) { }
   }
 
   btnCb.addEventListener('click', () => {
@@ -270,8 +317,9 @@
   /** Idle → Waiting: start the random countdown */
   function startGame() {
     Audio.click();
+    const diff = CONFIG.difficulties[currentDiff];
+    const delay = diff.delayMin + Math.random() * (diff.delayMax - diff.delayMin);
     transitionTo(STATES.WAITING);
-    const delay = 1000 + Math.random() * 4000;
     waitTimer = setTimeout(() => {
       signalTime = performance.now();
       Audio.go();
