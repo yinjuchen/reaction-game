@@ -8,6 +8,7 @@
   // ── Audio Engine (Web Audio API — no external files) ─────
   const Audio = (() => {
     let ctx = null;
+    let muted = localStorage.getItem('reflex_muted') === 'true';
 
     function _ctx() {
       if (!ctx) ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -15,7 +16,8 @@
     }
 
     // Core: play a tone with envelope
-    function _tone({ freq = 440, type = 'sine', attack = 0.005, decay = 0.08, volume = 0.4, duration = 0.12 } = {}) {
+    function _tone({ freq = 440, type = 'sine', attack = 0.005, decay = 0.08, volume = 0.4 } = {}) {
+      if (muted) return;
       try {
         const ac = _ctx();
         const osc = ac.createOscillator();
@@ -32,40 +34,27 @@
       } catch (e) { }
     }
 
-    // Short sci-fi blip — button click
-    function click() {
-      _tone({ freq: 880, type: 'square', attack: 0.003, decay: 0.06, volume: 0.18 });
-    }
-
-    // Rising burst — GO signal appears
+    function click() { _tone({ freq: 880, type: 'square', attack: 0.003, decay: 0.06, volume: 0.18 }); }
     function go() {
       _tone({ freq: 440, type: 'sine', attack: 0.005, decay: 0.06, volume: 0.3 });
       setTimeout(() => _tone({ freq: 660, type: 'sine', attack: 0.005, decay: 0.1, volume: 0.35 }), 60);
       setTimeout(() => _tone({ freq: 880, type: 'sine', attack: 0.005, decay: 0.18, volume: 0.4 }), 120);
     }
-
-    // Harsh buzz — too soon / false start
     function error() {
       _tone({ freq: 180, type: 'sawtooth', attack: 0.003, decay: 0.15, volume: 0.3 });
       setTimeout(() => _tone({ freq: 140, type: 'sawtooth', attack: 0.003, decay: 0.2, volume: 0.25 }), 80);
     }
-
-    // Satisfying chime — result shown
     function result() {
       _tone({ freq: 523, type: 'sine', attack: 0.005, decay: 0.2, volume: 0.28 });
       setTimeout(() => _tone({ freq: 659, type: 'sine', attack: 0.005, decay: 0.25, volume: 0.22 }), 100);
       setTimeout(() => _tone({ freq: 784, type: 'sine', attack: 0.005, decay: 0.35, volume: 0.18 }), 200);
     }
-
-    // Triumphant fanfare — game over
     function gameOver() {
       [0, 100, 200, 350].forEach((t, i) => {
         const freqs = [523, 659, 784, 1047];
         setTimeout(() => _tone({ freq: freqs[i], type: 'sine', attack: 0.01, decay: 0.4, volume: 0.3 }), t);
       });
     }
-
-    // Special fanfare — new all-time best
     function newBest() {
       [0, 80, 160, 240, 360].forEach((t, i) => {
         const freqs = [659, 784, 880, 1047, 1319];
@@ -73,7 +62,15 @@
       });
     }
 
-    return { click, go, error, result, gameOver, newBest };
+    function toggleMute() {
+      muted = !muted;
+      try { localStorage.setItem('reflex_muted', muted); } catch (e) { }
+      return muted;
+    }
+
+    function isMuted() { return muted; }
+
+    return { click, go, error, result, gameOver, newBest, toggleMute, isMuted };
   })();
 
   // ── Game states ──────────────────────────────────────────
@@ -172,6 +169,23 @@
     result: { cls: 'active-result', label: 'RESULT' },
     gameOver: { cls: 'active-result', label: 'GAME OVER' },
   };
+
+  // ── Mute toggle ───────────────────────────────────────────
+  const btnMute = document.getElementById('btn-mute');
+
+  function _updateMuteBtn() {
+    btnMute.textContent = Audio.isMuted() ? '🔇' : '🔊';
+    btnMute.title = Audio.isMuted() ? 'Unmute' : 'Mute';
+    btnMute.classList.toggle('muted', Audio.isMuted());
+  }
+
+  btnMute.addEventListener('click', () => {
+    Audio.toggleMute();
+    _updateMuteBtn();
+  });
+
+  // Set correct icon on load
+  _updateMuteBtn();
 
   // ── Modal (instructions) ──────────────────────────────────
   const modalBackdrop = document.getElementById('modal-backdrop');

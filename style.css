@@ -1062,3 +1062,30 @@ body {
     box-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
   }
 }
+
+/* ── Mute button ──────────────────────────────── */
+.btn-mute {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--panel-border);
+  background: rgba(255, 255, 255, 0.04);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.btn-mute:hover {
+  border-color: var(--accent);
+  background: rgba(59, 130, 246, 0.08);
+}
+
+.btn-mute.muted {
+  border-color: var(--error);
+  background: rgba(239, 68, 68, 0.08);
+  opacity: 0.7;
+}
