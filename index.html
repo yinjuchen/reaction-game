@@ -10,57 +10,200 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;700&display=swap"
     rel="stylesheet" />
+  <link rel="icon" type="image/png" href="favicon.png">
   <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
   <div class="noise"></div>
 
+  <!-- ── Instructions Modal ───────────────────── -->
+  <div class="modal-backdrop hidden" id="modal-backdrop">
+    <div class="modal" id="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+      <div class="modal-header">
+        <div class="modal-logo">REFLEX</div>
+        <p class="modal-tagline">Reaction Timer · Neural Reflex Engine</p>
+      </div>
+
+      <div class="modal-body">
+
+        <!-- How to play -->
+        <div class="modal-section">
+          <div class="modal-section-title">HOW TO PLAY</div>
+          <ol class="modal-steps">
+            <li>
+              <span class="step-num">01</span>
+              <div>
+                <strong>Start the test</strong>
+                <p>Click <em>INITIALIZE TEST</em> or press <span class="kbd">SPACE</span>. The 3D scene will begin
+                  calibrating.</p>
+              </div>
+            </li>
+            <li>
+              <span class="step-num">02</span>
+              <div>
+                <strong>Wait for the signal</strong>
+                <p>The screen will show a pulsing amber indicator. The GO signal appears after a <em>random</em> 1–5
+                  second delay — you can't predict it.</p>
+              </div>
+            </li>
+            <li>
+              <span class="step-num">03</span>
+              <div>
+                <strong>React instantly</strong>
+                <p>When the green <em>GO!</em> signal appears, click the button or press <span class="kbd">SPACE</span>
+                  as fast as possible. Every millisecond counts.</p>
+              </div>
+            </li>
+            <li>
+              <span class="step-num">04</span>
+              <div>
+                <strong>Don't jump the gun</strong>
+                <p>Clicking before the signal counts as a <em>false start</em>. The test resets and you'll need to try
+                  again.</p>
+              </div>
+            </li>
+            <li>
+              <span class="step-num">05</span>
+              <div>
+                <strong>Track your progress</strong>
+                <p>Your best time, session average, and full history are tracked automatically. Run multiple attempts to
+                  see improvement.</p>
+              </div>
+            </li>
+          </ol>
+        </div>
+
+        <!-- Tips -->
+        <div class="modal-section">
+          <div class="modal-section-title">TIPS FOR A BETTER SCORE</div>
+          <ul class="modal-tips">
+            <li>◈ Keep your finger <strong>hovering</strong> over the button — don't lift it between runs</li>
+            <li>◈ Focus on the <strong>3D scene</strong>, not the button — the color shift is your earliest cue</li>
+            <li>◈ Stay <strong>relaxed</strong> — tension slows muscle response time</li>
+            <li>◈ Use <strong>SPACE</strong> instead of clicking for a slightly faster response</li>
+            <li>◈ Warm up with 3–5 runs before attempting a personal best</li>
+          </ul>
+        </div>
+
+        <!-- Ratings guide -->
+        <div class="modal-section">
+          <div class="modal-section-title">PERFORMANCE RATINGS</div>
+          <div class="ratings-grid">
+            <div class="rating-row">
+              <span class="rating-badge superhuman">⚡ SUPERHUMAN</span>
+              <span class="rating-range">&lt; 130ms</span>
+              <span class="rating-desc">Theoretical human limit</span>
+            </div>
+            <div class="rating-row">
+              <span class="rating-badge legendary">🔥 LEGENDARY</span>
+              <span class="rating-range">130 – 169ms</span>
+              <span class="rating-desc">Elite competitive gamer</span>
+            </div>
+            <div class="rating-row">
+              <span class="rating-badge elite">✦ ELITE</span>
+              <span class="rating-range">170 – 219ms</span>
+              <span class="rating-desc">Top 5% of all humans</span>
+            </div>
+            <div class="rating-row">
+              <span class="rating-badge excellent">◆ EXCELLENT</span>
+              <span class="rating-range">220 – 269ms</span>
+              <span class="rating-desc">Well above average</span>
+            </div>
+            <div class="rating-row">
+              <span class="rating-badge above">◇ ABOVE AVERAGE</span>
+              <span class="rating-range">270 – 329ms</span>
+              <span class="rating-desc">Better than most</span>
+            </div>
+            <div class="rating-row">
+              <span class="rating-badge average">▷ AVERAGE</span>
+              <span class="rating-range">330 – 419ms</span>
+              <span class="rating-desc">Typical human response</span>
+            </div>
+            <div class="rating-row">
+              <span class="rating-badge keep">▽ KEEP TRAINING</span>
+              <span class="rating-range">420ms+</span>
+              <span class="rating-desc">Room to improve</span>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /modal-body -->
+
+      <div class="modal-footer">
+        <p class="modal-footnote">Human avg ~250ms · Pro gamer ~150ms · World record ~100ms</p>
+        <button class="btn btn-primary" id="btn-modal-close">LET'S GO →</button>
+      </div>
+
+    </div>
+  </div>
+
   <div class="layout">
+
     <!-- Left panel: Three.js canvas -->
     <div class="canvas-panel">
       <canvas id="three-canvas"></canvas>
-      <div class="canvas-label">NEURAL REFLEX ENGINE</div>
+      <div class="state-dot">
+        <div class="dot" id="indicator-dot"></div>
+        <span id="indicator-label">STANDBY</span>
+      </div>
+      <div class="canvas-label">NEURAL REFLEX ENGINE · THREE.JS</div>
     </div>
 
     <!-- Right panel: game UI -->
     <div class="ui-panel">
+
       <header class="header">
         <span class="logo">REFLEX</span>
-        <span class="version">v2.0</span>
+        <div class="header-right">
+          <button class="btn-help" id="btn-help" title="How to play">?</button>
+          <span class="version">v3.0</span>
+        </div>
       </header>
 
       <div class="game-area">
+
         <!-- State: idle -->
         <div class="state-block" id="state-idle">
-          <p class="state-desc">Test the speed of your nervous system.</p>
+          <div class="idle-icon">◎</div>
+          <div>
+            <p class="state-title">Reaction<br />Timer</p>
+          </div>
+          <p class="state-desc">A precision test of your nervous system. Wait for the green signal — then click as fast
+            as you can.</p>
           <button class="btn btn-primary" id="btn-start">INITIALIZE TEST</button>
+          <p class="hint">Press <span class="kbd">SPACE</span> to start</p>
         </div>
 
         <!-- State: waiting -->
         <div class="state-block hidden" id="state-waiting">
-          <div class="waiting-signal">
-            <div class="pulse-ring"></div>
-            <div class="pulse-ring ring-2"></div>
-            <span class="waiting-icon">◎</span>
+          <div class="wait-orb">
+            <div class="wait-ring"></div>
+            <div class="wait-ring"></div>
+            <div class="wait-ring"></div>
+            <div class="wait-core">◎</div>
           </div>
-          <p class="state-desc">Hold steady…<br /><span class="subtext">Click when you see the signal</span></p>
-          <button class="btn btn-ghost" id="btn-click-waiting">CLICK HERE</button>
+          <p class="wait-label">CALIBRATING…</p>
+          <p class="state-desc">Hold steady. The signal will appear<br />between 1 and 5 seconds.</p>
+          <button class="btn btn-ghost" id="btn-click-waiting">WAITING…</button>
+          <p class="hint danger">Don't click yet!</p>
         </div>
 
-        <!-- State: ready -->
+        <!-- State: ready (GO!) -->
         <div class="state-block hidden" id="state-ready">
           <div class="go-signal">
-            <span class="go-text">GO</span>
+            <span class="go-text">GO!</span>
           </div>
-          <button class="btn btn-success" id="btn-click-ready">CLICK NOW</button>
+          <button class="btn btn-success" id="btn-click-ready">CLICK NOW!</button>
+          <p class="hint success">or press <span class="kbd kbd-green">SPACE</span></p>
         </div>
 
         <!-- State: too soon -->
         <div class="state-block hidden" id="state-tooSoon">
           <div class="error-icon">✕</div>
           <p class="state-title error-text">TOO SOON</p>
-          <p class="state-desc">You clicked before the signal. Train harder.</p>
+          <p class="state-desc">You clicked before the signal appeared.<br />Patience is part of the test.</p>
           <button class="btn btn-outline" id="btn-retry-soon">TRY AGAIN</button>
         </div>
 
@@ -82,14 +225,53 @@
               <span class="stat-value" id="stat-avg">—</span>
             </div>
             <div class="stat">
-              <span class="stat-label">ROUNDS</span>
+              <span class="stat-label">ROUND</span>
               <span class="stat-value" id="stat-rounds">0</span>
             </div>
           </div>
-          <button class="btn btn-primary" id="btn-retry-result">RUN AGAIN</button>
+          <button class="btn btn-primary" id="btn-retry-result">NEXT ROUND →</button>
+        </div>
+
+        <!-- State: game over -->
+        <div class="state-block hidden" id="state-gameover">
+          <div class="gameover-badge">SESSION COMPLETE</div>
+          <p class="gameover-title">5 / 5</p>
+          <p class="gameover-rating" id="go-rating"></p>
+          <div class="result-stats">
+            <div class="stat">
+              <span class="stat-label">BEST</span>
+              <span class="stat-value" id="go-best">—</span>
+            </div>
+            <div class="stat">
+              <span class="stat-label">AVG</span>
+              <span class="stat-value" id="go-avg">—</span>
+            </div>
+          </div>
+          <div class="gameover-hist-label">ALL ROUNDS</div>
+          <div class="history-list" id="go-history"></div>
+          <button class="btn btn-primary" id="btn-play-again">PLAY AGAIN</button>
+          <p class="hint">Press <span class="kbd">SPACE</span> to restart</p>
+        </div>
+
+      </div><!-- /game-area -->
+
+      <!-- Session stats strip -->
+      <div class="stats-strip">
+        <div class="strip-stat">
+          <span class="strip-label">SESSION BEST</span>
+          <span class="strip-val" id="s-best">—</span>
+        </div>
+        <div class="strip-stat">
+          <span class="strip-label">SESSION AVG</span>
+          <span class="strip-val" id="s-avg">—</span>
+        </div>
+        <div class="strip-stat">
+          <span class="strip-label">ATTEMPTS</span>
+          <span class="strip-val" id="s-runs">0</span>
         </div>
       </div>
 
+      <!-- History panel -->
       <div class="history-panel">
         <div class="history-title">HISTORY</div>
         <div class="history-list" id="history-list">
@@ -98,13 +280,15 @@
       </div>
 
       <footer class="footer">
-        <span>Human avg: ~250ms · Pro gamer: ~150ms · World record: ~100ms</span>
+        Human avg: ~250ms · Pro gamer: ~150ms · World record: ~100ms
       </footer>
-    </div>
-  </div>
+
+    </div><!-- /ui-panel -->
+  </div><!-- /layout -->
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="three-scene.js"></script>
   <script src="script.js"></script>
 </body>
+
 </html>
